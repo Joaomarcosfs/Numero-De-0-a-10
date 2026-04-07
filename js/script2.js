@@ -1,51 +1,81 @@
-// Gera o número secreto
-let numeroSecreto = Math.floor(Math.random() * 11); // 0 a 10
-let tentativas = 2;
+// script.js
 
-function fazerTentativa() {
-    const input = document.getElementById("palpite");
-    const mensagem = document.getElementById("mensagem");
-    const spanTentativas = document.getElementById("tentativas");
+let numeroSecreto = Math.floor(Math.random() * 11);
+let tentativasRestantes = 2;
 
-    const palpite = parseInt(input.value);
+const inputPalpite = document.getElementById('palpite');
+const btnAdivinhar = document.getElementById('btnAdivinhar');
+const btnReiniciar = document.getElementById('btnReiniciar');
+const mensagem = document.getElementById('mensagem');
+const spanTentativas = document.getElementById('tentativas');
+
+function atualizarTentativas() {
+    spanTentativas.textContent = tentativasRestantes;
+}
+
+function mostrarMensagem(texto, cor) {
+    mensagem.textContent = texto;
+    mensagem.style.color = cor;
+}
+
+function desabilitarInput() {
+    inputPalpite.disabled = true;
+    btnAdivinhar.disabled = true;
+    btnReiniciar.classList.remove('d-none');
+}
+
+// Função principal de adivinhação
+function adivinhar() {
+    const palpite = parseInt(inputPalpite.value);
 
     // Validação
     if (isNaN(palpite) || palpite < 0 || palpite > 10) {
-        mensagem.style.color = "#ff6666";
-        mensagem.textContent = "❌ Digite um número entre 0 e 10!";
+        mostrarMensagem('❌ Digite um número entre 0 e 10!', '#dc3545');
         return;
     }
 
-    tentativas--;
-    spanTentativas.textContent = tentativas;
+    tentativasRestantes--;
+    atualizarTentativas();
 
     if (palpite === numeroSecreto) {
-        mensagem.style.color = "#00ff88";
-        mensagem.innerHTML = `🎉 Parabéns! Você acertou!<br>O número era <strong>${numeroSecreto}</strong>`;
-        document.querySelector("button").disabled = true;
+        mostrarMensagem(`🎉 Parabéns! Você acertou! O número era ${numeroSecreto}`, '#28a745');
+        desabilitarInput();
     }
-    else if (tentativas === 0) {
-        mensagem.style.color = "#ff6666";
-        mensagem.innerHTML = `😢 Game Over!<br>O número era <strong>${numeroSecreto}</strong>`;
-        document.querySelector("button").disabled = true;
+    else if (tentativasRestantes === 0) {
+        mostrarMensagem(`😢 Fim de jogo! O número era ${numeroSecreto}`, '#dc3545');
+        desabilitarInput();
     }
     else {
-        mensagem.style.color = "#ffff66";
-        if (palpite < numeroSecreto) {
-            mensagem.textContent = `📈 O número é maior que ${palpite}`;
-        } else {
-            mensagem.textContent = `📉 O número é menor que ${palpite}`;
-        }
+        const dica = palpite < numeroSecreto ? 'maior' : 'menor';
+        mostrarMensagem(`❌ Errado! Tente um número ${dica}.`, '#ffc107');
+        inputPalpite.value = '';
+        inputPalpite.focus();
     }
-
-    // Limpa o input após cada tentativa
-    input.value = "";
-    input.focus();
 }
 
-// Permite pressionar Enter para enviar o palpite
-document.getElementById("palpite").addEventListener("keypress", function (e) {
-    if (e.key === "Enter") {
-        fazerTentativa();
+// Evento do botão Adivinhar
+btnAdivinhar.addEventListener('click', adivinhar);
+
+// Permitir pressionar Enter no input
+inputPalpite.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        adivinhar();
     }
 });
+
+// Reiniciar o jogo
+btnReiniciar.addEventListener('click', () => {
+    numeroSecreto = Math.floor(Math.random() * 11);
+    tentativasRestantes = 2;
+    atualizarTentativas();
+
+    inputPalpite.value = '';
+    inputPalpite.disabled = false;
+    btnAdivinhar.disabled = false;
+    mensagem.textContent = '';
+    btnReiniciar.classList.add('d-none');
+    inputPalpite.focus();
+});
+
+// Inicializa as tentativas na tela
+atualizarTentativas();
